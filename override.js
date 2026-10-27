@@ -8,7 +8,7 @@ https://github.com/powerfullz/override-rules
 - ipv6: 启用 IPv6 支持（默认 false）
 - full: 输出完整配置（适合纯内核启动，默认 false）
 - keepalive: 启用 tcp-keep-alive（默认 false）
-- fakeip: DNS 使用 FakeIP 模式（默认 false，false 为 RedirHost）
+- fakeip: DNS 使用 FakeIP 模式（默认 true，已改为 fake-ip；传 false 回退 RedirHost）
 - quic: 允许 QUIC 流量（UDP 443，默认 false）
 - threshold: 国家节点数量小于该值时不显示分组 (默认 0)
 - regex: 使用正则过滤模式（include-all + filter）写入各国家代理组，而非直接枚举节点名称（默认 false）
@@ -343,7 +343,7 @@ function buildDnsConfig({ mode, fakeIpFilter }) {
         "prefer-h3": true,
         "enhanced-mode": mode,
         "default-nameserver": ["119.29.29.29", "223.5.5.5"],
-        nameserver: ["system", "223.5.5.5", "119.29.29.29", "180.184.1.1"],
+        nameserver: ["https://doh.pub/dns-query", "https://dns.alidns.com/dns-query", "223.5.5.5"],
         fallback: [
             "quic://dns0.eu",
             "https://dns.cloudflare.com/dns-query",
@@ -375,21 +375,19 @@ function buildDnsConfig({ mode, fakeIpFilter }) {
     return config;
 }
 
-const dnsConfig = buildDnsConfig({ mode: "redir-host" });
-const dnsConfigFakeIp = buildDnsConfig({
-    mode: "fake-ip",
-    fakeIpFilter: [
-        "geosite:private",
-        "geosite:connectivity-check",
-        "geosite:cn",
-        "Mijia Cloud",
-        "dig.io.mi.com",
-        "localhost.ptlogin2.qq.com",
-        "*.icloud.com",
-        "*.stun.*.*",
-        "*.stun.*.*.*",
-    ],
-});
+const dnsFakeIpFilter = [
+    "geosite:private",
+    "geosite:connectivity-check",
+    "geosite:cn",
+    "Mijia Cloud",
+    "dig.io.mi.com",
+    "localhost.ptlogin2.qq.com",
+    "*.icloud.com",
+    "*.stun.*.*",
+    "*.stun.*.*.*",
+];
+const dnsConfig = buildDnsConfig({ mode: "fake-ip", fakeIpFilter: dnsFakeIpFilter });
+const dnsConfigFakeIp = buildDnsConfig({ mode: "fake-ip", fakeIpFilter: dnsFakeIpFilter });
 
 const geoxURL = {
     geoip: "https://gcore.jsdelivr.net/gh/Loyalsoldier/v2ray-rules-dat@release/geoip.dat",
