@@ -353,17 +353,17 @@ function buildDnsConfig({ mode, fakeIpFilter }) {
         ],
         "proxy-server-nameserver": ["https://dns.alidns.com/dns-query", "tls://dot.pub"],
         // 国内 DNS 会把个别域名解析成 0.0.0.0 或万网停放 IP（如 south-plus.net），
-        // 这里给这些域名单独指定可用的海外 DoH，其余域名仍走上面的国内解析。
+        // 这里给这些域名单独指定解析器，其余域名仍走上面的默认解析。
+        // 注意：这里只能用「国内可直连」的 DoH/DoT。dns.respect-rules 为 false 时
+        // 策略里的服务器是直连访问的，填海外 DoH（cloudflare/google）会直接超时。
         "nameserver-policy": {
             "south-plus.net": [
-                "https://dns.cloudflare.com/dns-query",
-                "https://dns.google/dns-query",
-                "quic://dns0.eu",
+                "https://doh.pub/dns-query",
+                "tls://dot.pub",
             ],
             "blue-plus.net": [
-                "https://dns.cloudflare.com/dns-query",
-                "https://dns.google/dns-query",
-                "quic://dns0.eu",
+                "https://doh.pub/dns-query",
+                "tls://dot.pub",
             ],
         },
     };
